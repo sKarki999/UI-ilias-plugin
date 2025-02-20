@@ -1,0 +1,11 @@
+{
+    "name": "ilias/custom-url-display",
+    "type": "ilias-plugin",
+    "description": "A simple UI Hook Plugin for displaying custom URLs",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "classmap": ["classes/"]
+    }
+}
