@@ -15,7 +15,7 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
     private $db;
 
     public function __construct() {
-        global $tpl, $ilCtrl, $ilDB;;
+        global $tpl, $ilCtrl, $ilDB;
         $this->tpl = $tpl;
         $this->db = $ilDB;
         $this->ctrl = $ilCtrl;
@@ -58,7 +58,7 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
         $values = ($this->db->numRows($result) > 0) ? $this->db->fetchAssoc($result) : [];
 
         $form = new ilPropertyFormGUI();
-        $form->setTitle("URL Display Configuration");
+        $form->setTitle($this->getPluginObject()->txt("custom_url_display_title"));
         $form->setFormAction($this->ctrl->getFormAction($this));
 
         // protocol
