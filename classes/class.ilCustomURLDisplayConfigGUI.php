@@ -5,20 +5,28 @@ declare(strict_types=1);
 /**
  * Configuration GUI for CustomURLDisplay Plugin
  * 
+ * @ilCtrl_IsCalledBy ilCustomURLDisplayConfigGUI: ilObjComponentSettingsGUI
+ * 
  */
 class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
 
     private $tpl;
     private $ctrl;
+    private $db;
 
     public function __construct() {
-        global $tpl, $ilCtrl;
+        global $tpl, $ilCtrl, $ilDB;;
         $this->tpl = $tpl;
+        $this->db = $ilDB;
         $this->ctrl = $ilCtrl;
     }
 
-    // Handles commands 
-    // @param string $cmd
+    /**
+     * Method for handling commands
+     *
+     * @param string $cmd
+     * @return void
+     */
     public function performCommand($cmd): void {
         switch ($cmd) {
             case "configure":
@@ -32,14 +40,22 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
         }
     }
 
-    // TODO: Display the configuration Form
+    // Display the configuration Form
     private function showConfig(): void {
         $form = $this->buildForm();
         $this->tpl->setContent($form->getHTML());
     }
 
 
+    /**
+     * Builds the configuration form for the plugin
+     * @return ilPropertyFormGUI
+     */
     private function buildForm(): ilPropertyFormGUI {
+
+        // Fetch existing values(last inserted id) or set defaults if no data exists
+        $result = $this->db->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
+        $values = ($this->db->numRows($result) > 0) ? $this->db->fetchAssoc($result) : [];
 
         $form = new ilPropertyFormGUI();
         $form->setTitle("URL Display Configuration");
@@ -49,43 +65,65 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
         $protocol = new ilSelectInputGUI("URL PROTOCOL", "protocol");
         $protocol->setOptions(["http" => "http", "https" => "https"]);
         $protocol->setRequired(true);
-        $protocol->setValue("https");
+        $protocol->setValue($values["protocol"] ?? "https");
         $form->addItem($protocol);
 
         // Domain
         $domain = new ilTextInputGUI("DOMAIN", "domain");
         $domain->setRequired(true);
-        $domain->setValue("");
+        $domain->setValue($values["domain"] ?? "");
         $form->addItem($domain);
-        
+
         // port
         $port = new ilNumberInputGUI("PORT", "port");
         $port->setMinValue(1);
         $port->setMaxValue(65535);
-        $port->setValue("");
+        $port->setValue($values["port"] ?? "");
         $form->addItem($port);
 
         // path
         $path = new ilTextInputGUI("PATH", "path");
-        $path->setValue("");
+        $path->setValue($values["path"] ?? "");
         $form->addItem($path);
 
         // color
         $color = new ilSelectInputGUI("Background Color", "color");
         $color->setOptions(["red" => "Red", "blue" => "Blue", "green" => "Green"]);
-        $color->setValue("red");
+        $color->setValue($values["color"] ?? "red");
         $form->addItem($color);
 
         // Submit button
         $form->addCommandButton("save", "SAVE");
 
         return $form;
-
     }
 
 
-    // TODO: Saves the configuration to the database
+    // Saves the configuration to the database
     private function saveConfig(): void {
 
+        $form = $this->buildForm();
+
+        if ($form->checkInput()) {
+            // get the values from the form input
+            $protocol = $form->getInput("protocol");
+            $domain = $form->getInput("domain");
+            $port = $form->getInput("port");
+            $path = $form->getInput("path");
+            $color = $form->getInput("color");
+
+            // Update values in database
+            $this->db->replace('uihk_url_display', [], [
+                "protocol" => ["text", $protocol],
+                "domain" => ["text", $domain],
+                "port" => ["integer", $port],
+                "path" => ["text", $path],
+                "color" => ["text", $color]
+
+            ]);
+
+            // Redirect back to Configuration page
+            $this->ctrl->redirectByClass("ilCustomURLDisplayConfigGUI", "configure");
+        }
     }
 }
