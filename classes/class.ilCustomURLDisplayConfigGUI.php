@@ -10,15 +10,17 @@ declare(strict_types=1);
  */
 class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
 
-    private $tpl;
-    private $ctrl;
-    private $db;
-
+    private ilGlobalTemplateInterface $tpl;
+    private ilCtrl  $ctrl;
+    private ilDBInterface  $db;
+    
     public function __construct() {
-        global $tpl, $ilCtrl, $ilDB;
+        global $tpl, $ilCtrl, $ilDB, $lng;
+
         $this->tpl = $tpl;
         $this->db = $ilDB;
         $this->ctrl = $ilCtrl;
+
     }
 
     /**
@@ -28,6 +30,9 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
      * @return void
      */
     public function performCommand($cmd): void {
+
+        // $this->plugin = $this->getPluginObject();
+
         switch ($cmd) {
             case "configure":
                 $this->showConfig();
@@ -52,42 +57,42 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
      * @return ilPropertyFormGUI
      */
     private function buildForm(): ilPropertyFormGUI {
-
+        
         // Fetch existing values(last inserted id) or set defaults if no data exists
         $result = $this->db->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
         $values = ($this->db->numRows($result) > 0) ? $this->db->fetchAssoc($result) : [];
 
         $form = new ilPropertyFormGUI();
-        $form->setTitle($this->getPluginObject()->txt("custom_url_display_title"));
+        $form->setTitle($this->getPluginObject()->txt("url_display_title"));
         $form->setFormAction($this->ctrl->getFormAction($this));
 
         // protocol
-        $protocol = new ilSelectInputGUI("URL PROTOCOL", "protocol");
+        $protocol = new ilSelectInputGUI($this->getPluginObject()->txt("url_display_protocol"), "protocol");
         $protocol->setOptions(["http" => "http", "https" => "https"]);
         $protocol->setRequired(true);
         $protocol->setValue($values["protocol"] ?? "https");
         $form->addItem($protocol);
 
         // Domain
-        $domain = new ilTextInputGUI("DOMAIN", "domain");
+        $domain = new ilTextInputGUI($this->getPluginObject()->txt("url_display_domain"), "domain");
         $domain->setRequired(true);
         $domain->setValue($values["domain"] ?? "");
         $form->addItem($domain);
 
         // port
-        $port = new ilNumberInputGUI("PORT", "port");
+        $port = new ilNumberInputGUI($this->getPluginObject()->txt("url_display_port"), "port");
         $port->setMinValue(1);
         $port->setMaxValue(65535);
         $port->setValue($values["port"] ?? "");
         $form->addItem($port);
 
         // path
-        $path = new ilTextInputGUI("PATH", "path");
+        $path = new ilTextInputGUI($this->getPluginObject()->txt("url_display_path"), "path");
         $path->setValue($values["path"] ?? "");
         $form->addItem($path);
 
         // color
-        $color = new ilSelectInputGUI("Background Color", "color");
+        $color = new ilSelectInputGUI($this->getPluginObject()->txt("url_display_color"), "color");
         $color->setOptions(["red" => "Red", "blue" => "Blue", "green" => "Green"]);
         $color->setValue($values["color"] ?? "red");
         $form->addItem($color);

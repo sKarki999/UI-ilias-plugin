@@ -9,13 +9,12 @@ declare(strict_types=1);
 class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
 
 
-    private $db; // database connection
+    private ilDBInterface $db; // database connection
 
     public function __construct() {
 
         global $ilDB;
         $this->db = $ilDB;
-
     }
 
     /**
@@ -31,7 +30,7 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
     public function getHTML($a_comp, $a_part, $a_par = []): array {
 
         // Targeting the right column of the ILIAS dashboard
-        if($a_comp === "Services/Dashboard" && $a_part === "right_column") {
+        if ($a_comp === "Services/Dashboard" && $a_part === "right_column") {
 
             // error_log("Injecting element into Dashboard Right Column");
 
@@ -51,20 +50,30 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
                 ];
             }
 
+            
+            $url = $config["protocol"] . "://" . $config["domain"];
+            
+            // Add port only if it exists
+            if (!empty($config["port"])) {
+                $url .= ":" . $config["port"];
+            }
+            
+            // Add path only if it exists and ensure it starts with "/"
+            if (!empty($config["path"])) {
+                $url .= "/" . ltrim($config["path"], "/");
+            }
+            
             $template_path = "./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CustomURLDisplay/templates/tpl.custom_url_display.html";
-
             $html = file_get_contents($template_path);
             $html = str_replace(
-                ["{PROTOCOL}", "{DOMAIN}", "{PORT}", "{PATH}", "{COLOR}"],
-                [$config["protocol"], $config["domain"], $config["port"], $config["path"], $config["color"]],
+                ["{URL}", "{COLOR}"],
+                [$url, $config["color"]],
                 $html
             );
 
             return ["mode" => self::APPEND, "html" => $html];
-
         }
 
         return ["mode" => self::KEEP, "html" => ""];
-
     }
 }
