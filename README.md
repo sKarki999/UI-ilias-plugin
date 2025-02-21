@@ -1,7 +1,7 @@
 Custom URL Display Plugin
 =========================
 
-*A User Interface Hook Plugin for ILIAS 8 that allows to configure and display a custom URL on the ILIAS Dashboard (Right Column) with a selected background color.*
+*A User Interface Hook Plugin for ILIAS 8 that allows to configure and display a custom URL on the ILIAS Dashboard with a selected background color.*
 
 ---
 
@@ -29,7 +29,7 @@ Installation
 	. Path (Optional)
 	. Background Color
 4. Click Save Configuration
-5. The configured URL will now appear on the Dashboard Right Column
+5. The configured URL will now appear on the Dashboard
 
 
 ### Features

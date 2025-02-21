@@ -10,18 +10,24 @@ declare(strict_types=1);
  */
 class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
 
+    /** @var ilGlobalTemplateInterface Main template instance */
     private ilGlobalTemplateInterface $tpl;
+
+    /** @var ilCtrl Controller instance for navigation */
     private ilCtrl $ctrl;
+
+    /** @var ilDBInterface Database connection */
     private ilDBInterface $db;
+
+    /** @var object Dependency Injection Container */
     private $dic;
 
     public function __construct() {
-        global $tpl, $ilCtrl, $ilDB, $DIC;
-
-        $this->tpl = $tpl;
-        $this->db = $ilDB;
-        $this->ctrl = $ilCtrl;
+        global $DIC;
         $this->dic = $DIC;
+        $this->db = $this->dic->database();
+        $this->ctrl = $this->dic->ctrl();
+        $this->tpl = $this->dic->ui()->mainTemplate();
     }
 
     /**
@@ -31,8 +37,6 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
      * @return void
      */
     public function performCommand($cmd): void {
-
-        // $this->plugin = $this->getPluginObject();
 
         switch ($cmd) {
             case "configure":
@@ -94,7 +98,12 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
 
         // color
         $color = new ilSelectInputGUI($this->getPluginObject()->txt("url_display_color"), "color");
-        $color->setOptions(["red" => "Red", "blue" => "Blue", "green" => "Green"]);
+        $color->setOptions([
+            "mistyrose" => "Misty Rose",
+            "palegreen" => "Pale Green",
+            "khaki"     => "Khaki",
+            "lightblue" => "Light Blue",
+        ]);
         $color->setValue($values["color"] ?? "red");
         $form->addItem($color);
 

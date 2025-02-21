@@ -8,13 +8,17 @@ declare(strict_types=1);
  */
 class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
 
+    /** @var ilDBInterface Database connection */
+    private ilDBInterface $db;
 
-    private ilDBInterface $db; // database connection
+    /** @var object Dependency Injection Container */
+    private $dic;
 
     public function __construct() {
 
-        global $ilDB;
-        $this->db = $ilDB;
+        global $DIC;
+        $this->dic = $DIC;
+        $this->db = $this->dic->database();
     }
 
     /**
@@ -30,9 +34,7 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
     public function getHTML($a_comp, $a_part, $a_par = []): array {
 
         // Targeting the right column of the ILIAS dashboard
-        if ($a_comp === "Services/Dashboard" && $a_part === "right_column") {
-
-            // error_log("Injecting element into Dashboard Right Column");
+        if ($a_comp === "Services/Dashboard") {
 
             // Fetch latest URL configuration from database
             $result = $this->db->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
@@ -50,30 +52,38 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
                 ];
             }
 
-            
+            // Construct the full URL from the retrieved configuration
             $url = $config["protocol"] . "://" . $config["domain"];
-            
+
             // Add port only if it exists
             if (!empty($config["port"])) {
                 $url .= ":" . $config["port"];
             }
-            
+
             // Add path only if it exists and ensure it starts with "/"
             if (!empty($config["path"])) {
                 $url .= "/" . ltrim($config["path"], "/");
             }
-            
-            $template_path = __DIR__ . "/../templates/tpl.custom_url_display.html";
-            $html = file_get_contents($template_path);
-            $html = str_replace(
-                ["{URL}", "{COLOR}"],
-                [$url, $config["color"]],
-                $html
-            );
 
-            return ["mode" => self::APPEND, "html" => $html];
+            // template path
+            $template_path = __DIR__ . "/../templates/tpl.custom_url_display.html";
+            $template = new ilTemplate($template_path, true, true);
+            $template->setVariable("URL", $url);
+            $template->setVariable("COLOR", $config['color']);
+            
+            // Get the ILIAS main template instance
+            $main_tpl = $this->dic->ui()->mainTemplate();
+
+            // Set the title of the ILIAS page
+            $main_tpl->setTitle("CUSTOM URL");
+
+            // Inject the content
+            $main_tpl->setContent($template->get());
         }
 
+        // Return an array with mode "KEEP" to ensure the default UI behavior is preserved
         return ["mode" => self::KEEP, "html" => ""];
     }
+
+   
 }
