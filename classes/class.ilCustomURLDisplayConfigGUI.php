@@ -11,16 +11,17 @@ declare(strict_types=1);
 class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
 
     private ilGlobalTemplateInterface $tpl;
-    private ilCtrl  $ctrl;
-    private ilDBInterface  $db;
-    
+    private ilCtrl $ctrl;
+    private ilDBInterface $db;
+    private $dic;
+
     public function __construct() {
-        global $tpl, $ilCtrl, $ilDB, $lng;
+        global $tpl, $ilCtrl, $ilDB, $DIC;
 
         $this->tpl = $tpl;
         $this->db = $ilDB;
         $this->ctrl = $ilCtrl;
-
+        $this->dic = $DIC;
     }
 
     /**
@@ -57,7 +58,7 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
      * @return ilPropertyFormGUI
      */
     private function buildForm(): ilPropertyFormGUI {
-        
+
         // Fetch existing values(last inserted id) or set defaults if no data exists
         $result = $this->db->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
         $values = ($this->db->numRows($result) > 0) ? $this->db->fetchAssoc($result) : [];
@@ -126,6 +127,13 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
                 "color" => ["text", $color]
 
             ]);
+
+            // Show success message
+            $this->dic->ui()->mainTemplate()->setOnScreenMessage(
+                "success",
+                $this->getPluginObject()->txt("url_display_success"),
+                true
+            );
 
             // Redirect back to Configuration page
             $this->ctrl->redirectByClass("ilCustomURLDisplayConfigGUI", "configure");

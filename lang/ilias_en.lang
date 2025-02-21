@@ -7,3 +7,4 @@ url_display_port#:#Port
 url_display_path#:#Path
 url_display_color#:#Background Color
 url_display_save#:#Save Configuration
+url_display_success#:#Success

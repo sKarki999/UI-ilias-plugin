@@ -63,7 +63,7 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
                 $url .= "/" . ltrim($config["path"], "/");
             }
             
-            $template_path = "./Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CustomURLDisplay/templates/tpl.custom_url_display.html";
+            $template_path = __DIR__ . "/../templates/tpl.custom_url_display.html";
             $html = file_get_contents($template_path);
             $html = str_replace(
                 ["{URL}", "{COLOR}"],
