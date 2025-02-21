@@ -37,5 +37,5 @@ Installation
 2. Protocol Selection (http / https)
 3. Domain, Port (Optional), and Path Input
 4. Background Color Selection
-5. Dynamic UI Rendering on the Dashboard Right Column
+5. Dynamic UI Rendering on the Dashboard
 6. Fully Compatible with ILIAS 8 UI Framework
