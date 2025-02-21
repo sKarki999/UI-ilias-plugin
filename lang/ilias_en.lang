@@ -1,0 +1,9 @@
+<!-- language file start -->
+url_display_title#:#Custom URL Display
+url_display_description#:#This plugin displays a custom URL in the ILIAS UI.
+url_display_protocol#:#Protocol
+url_display_domain#:#Domain
+url_display_port#:#Port
+url_display_path#:#Path
+url_display_color#:#Background Color
+url_display_save#:#Save Configuration
