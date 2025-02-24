@@ -13,6 +13,4 @@ class ilCustomURLDisplayPlugin extends ilUserInterfaceHookPlugin {
     public function getPluginName(): string {
         return "CustomURLDisplay";
     }
-    
-
 }

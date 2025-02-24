@@ -11,23 +11,22 @@ declare(strict_types=1);
 class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
 
     /** @var ilGlobalTemplateInterface Main template instance */
-    private ilGlobalTemplateInterface $tpl;
+    private ilGlobalTemplateInterface $template;
 
     /** @var ilCtrl Controller instance for navigation */
-    private ilCtrl $ctrl;
+    private ilCtrl $controller;
 
     /** @var ilDBInterface Database connection */
-    private ilDBInterface $db;
+    private ilDBInterface $database;
 
-    /** @var object Dependency Injection Container */
-    private $dic;
+    private $container;
 
     public function __construct() {
         global $DIC;
-        $this->dic = $DIC;
-        $this->db = $this->dic->database();
-        $this->ctrl = $this->dic->ctrl();
-        $this->tpl = $this->dic->ui()->mainTemplate();
+        $this->container = $DIC;
+        $this->database = $this->container->database();
+        $this->controller = $this->container->ctrl();
+        $this->template = $this->container->ui()->mainTemplate();
     }
 
     /**
@@ -53,7 +52,7 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
     // Display the configuration Form
     private function showConfig(): void {
         $form = $this->buildForm();
-        $this->tpl->setContent($form->getHTML());
+        $this->template->setContent($form->getHTML());
     }
 
 
@@ -64,12 +63,12 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
     private function buildForm(): ilPropertyFormGUI {
 
         // Fetch existing values(last inserted id) or set defaults if no data exists
-        $result = $this->db->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
-        $values = ($this->db->numRows($result) > 0) ? $this->db->fetchAssoc($result) : [];
+        $result = $this->database->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
+        $values = ($this->database->numRows($result) > 0) ? $this->database->fetchAssoc($result) : [];
 
         $form = new ilPropertyFormGUI();
         $form->setTitle($this->getPluginObject()->txt("url_display_title"));
-        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setFormAction($this->controller->getFormAction($this));
 
         // protocol
         $protocol = new ilSelectInputGUI($this->getPluginObject()->txt("url_display_protocol"), "protocol");
@@ -127,25 +126,27 @@ class ilCustomURLDisplayConfigGUI extends ilPluginConfigGUI {
             $path = $form->getInput("path");
             $color = $form->getInput("color");
 
-            // Update values in database
-            $this->db->replace('uihk_url_display', [], [
-                "protocol" => ["text", $protocol],
-                "domain" => ["text", $domain],
-                "port" => ["integer", $port],
-                "path" => ["text", $path],
-                "color" => ["text", $color]
+            try {
 
-            ]);
+                // save values in database
+                $this->database->replace('uihk_url_display', [], [
+                    "protocol" => ["text", $protocol],
+                    "domain" => ["text", $domain],
+                    "port" => ["integer", $port],
+                    "path" => ["text", $path],
+                    "color" => ["text", $color]
+
+                ]);
+
+                $this->container->ui()->mainTemplate()->setOnScreenMessage("success", $this->getPluginObject()->txt("url_display_success"), true);
+            } catch (Exception $e) {
+                error_log("ERROR " . $e->getMessage());
+            }
 
             // Show success message
-            $this->dic->ui()->mainTemplate()->setOnScreenMessage(
-                "success",
-                $this->getPluginObject()->txt("url_display_success"),
-                true
-            );
 
             // Redirect back to Configuration page
-            $this->ctrl->redirectByClass("ilCustomURLDisplayConfigGUI", "configure");
+            $this->controller->redirectByClass("ilCustomURLDisplayConfigGUI", "configure");
         }
     }
 }

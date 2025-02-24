@@ -9,16 +9,15 @@ declare(strict_types=1);
 class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
 
     /** @var ilDBInterface Database connection */
-    private ilDBInterface $db;
+    private ilDBInterface $database;
 
-    /** @var object Dependency Injection Container */
-    private $dic;
+    private $container;
 
     public function __construct() {
 
         global $DIC;
-        $this->dic = $DIC;
-        $this->db = $this->dic->database();
+        $this->container = $DIC;
+        $this->database = $this->container->database();
     }
 
     /**
@@ -37,15 +36,15 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
         if ($a_comp === "Services/Dashboard") {
 
             // Fetch latest URL configuration from database
-            $result = $this->db->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
+            $result = $this->database->query("SELECT * FROM uihk_url_display ORDER BY id DESC LIMIT 1");
 
-            if ($this->db->numRows($result) > 0) {
-                $config = $this->db->fetchAssoc($result);
+            if ($this->database->numRows($result) > 0) {
+                $config = $this->database->fetchAssoc($result);
             } else {
                 // Default values if no configuration exists
                 $config = [
                     "protocol" => "http",
-                    "domain" => "example.com",
+                    "domain" => "www.example.com",
                     "port" => "80",
                     "path" => "/",
                     "color" => "red"
@@ -72,10 +71,10 @@ class ilCustomURLDisplayUIHookGUI extends ilUIHookPluginGUI {
             $template->setVariable("COLOR", $config['color']);
             
             // Get the ILIAS main template instance
-            $main_tpl = $this->dic->ui()->mainTemplate();
+            $main_tpl = $this->container->ui()->mainTemplate();
 
             // Set the title of the ILIAS page
-            $main_tpl->setTitle("CUSTOM URL");
+            $main_tpl->setTitle("ILIAS TEST");
 
             // Inject the content
             $main_tpl->setContent($template->get());
